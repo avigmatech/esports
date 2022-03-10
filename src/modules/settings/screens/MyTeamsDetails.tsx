@@ -115,6 +115,7 @@ const MyTeamsDetails = ({ navigation, route }: Props) => {
   const [wdaysEndVisible, setWDaysEndVisible] = useState(false);
   const [wendsStartVisible, setWEndsStartVisible] = useState(false);
   const [wendsEndVisible, setWEndsEndVisible] = useState(false);
+  const [timezone, setTimeZone] = useState("");
 
   const onDismissWDaysStart = useCallback(() => {
     setWDaysStartVisible(false);
@@ -189,6 +190,16 @@ const MyTeamsDetails = ({ navigation, route }: Props) => {
     },
   });
 
+  React.useEffect(() => {
+    var d = new Date();
+    var n = d
+      .toTimeString("en-us", { timeZone: "UTC", timeZoneName: "short" })
+      .split(" ")
+      .slice(2, 5);
+    const Zone = n.map(value => value[0].replace("(", value[1]));
+    setTimeZone(Zone);
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
       let mounted = true;
@@ -211,6 +222,8 @@ const MyTeamsDetails = ({ navigation, route }: Props) => {
   };
 
   const handleUpdateTeamDetails = async (data: IUpdateTeam) => {
+    console.log(data, "datata");
+
     if (isOwner || isStarter) {
       Keyboard.dismiss();
       setLoading(true);
@@ -736,7 +749,7 @@ const MyTeamsDetails = ({ navigation, route }: Props) => {
               />
             </Block>
             <Block noflex middle>
-              <Text>IST</Text>
+              <Text>{timezone}</Text>
             </Block>
           </Block>
         </Block>
@@ -835,7 +848,7 @@ const MyTeamsDetails = ({ navigation, route }: Props) => {
               />
             </Block>
             <Block noflex middle>
-              <Text>IST</Text>
+              <Text>{timezone}</Text>
             </Block>
           </Block>
         </Block>

@@ -17,12 +17,14 @@ import { indexRegionByName } from "../../../config";
 
 const initialState: fromModels.TournamentState = {
   teamPlayers: [],
+  substitutePlayers:[],
   regions: [],
   seasons: [],
   casters: [],
   maps: [],
   standings: [],
   standingsLoading: false,
+  standingsSearchLoading:false,
   error: undefined,
   filterRegRank: undefined,
   teamDetails: undefined,
@@ -47,6 +49,7 @@ export const LOAD_SEASONS_BY_LEAGUE = "tournament/LOAD_SEASONS_BY_LEAGUE";
 export const LOAD_CASTERS_BY_LEAGUE = "tournament/LOAD_CASTERS_BY_LEAGUE";
 export const LOAD_SUBSTITUTE_BY_LEAGUE = "tournament/LOAD_SUBSTITUTE_BY_LEAGUE";
 export const LOAD_STANDINGS_BY_LEAGUE = "tournament/LOAD_STANDINGS_BY_LEAGUE";
+export const LOAD_SEARCH_STANDINGS_BY_LEAGUE = "tournament/LOAD_SEARCH_STANDINGS_BY_LEAGUE";
 export const LOAD_PLAYERS_BY_LEAGUE = "tournament/LOAD_PLAYERS_BY_LEAGUE";
 export const LOAD_TEAM_DETAILS = "tournament/LOAD_TEAM_DETAILS";
 export const LOAD_TEAM_PLAYERS = "tournament/LOAD_TEAM_PLAYERS";
@@ -101,6 +104,7 @@ export const loadCastersByLeague = createAsyncThunk<
   }
 });
 
+
 export const loadPlayersByLeague = createAsyncThunk<
   fromModels.TeamDetPlayers[],
   string,
@@ -119,6 +123,20 @@ export const loadPlayersByLeague = createAsyncThunk<
   },
 );
 
+export const loadSubstituteByLeague = createAsyncThunk<
+  fromModels.SubstitutePlayer[],
+  string,
+  { rejectValue: fromModels.CustomError }
+>(
+  LOAD_SUBSTITUTE_BY_LEAGUE, 
+  async (game: string, { rejectWithValue }) => {
+  try {
+    return await fromServices.getSubstitutesByLeague(game);
+  } catch (error) {
+    return rejectWithValue(error.response.data);
+  } 
+});
+
 export const loadStandingsByLeague = createAsyncThunk<
   fromModels.Team[],
   fromModels.StandingRequest,
@@ -136,6 +154,25 @@ export const loadStandingsByLeague = createAsyncThunk<
     }
   },
 );
+
+export const loadSearchStandingsByLeague = createAsyncThunk<
+  fromModels.Team[],
+  fromModels.StandingRequestSearch,
+  { rejectValue: fromModels.CustomError }
+>(
+  LOAD_SEARCH_STANDINGS_BY_LEAGUE,
+  async (data: fromModels.StandingRequestSearch, thunkApi) => {
+    thunkApi.dispatch(setStandingsSearchLoading());
+    try {
+      return await fromServices.getSearchStandingsByLeague(data);
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    } finally {
+      thunkApi.dispatch(resetStandingsSearchLoading());
+    }
+  },
+);
+
 export const loadTeamDetails = createAsyncThunk<
   fromModels.Team,
   string,
@@ -383,8 +420,14 @@ export const tournamentSlice = createSlice({
     setStandingsLoading: state => {
       state.standingsLoading = true;
     },
+    setStandingsSearchLoading: state => {
+      state.standingsSearchLoading =true
+    },
     resetStandingsLoading: state => {
       state.standingsLoading = false;
+    },
+     resetStandingsSearchLoading: state => {
+      state.standingsSearchLoading = false;
     },
     setPlayerScreenLoading: state => {
       state.playerScreenLoading = true;
@@ -442,6 +485,19 @@ export const tournamentSlice = createSlice({
         },
       )
       .addCase(loadStandingsByLeague.rejected, (state, action) => {
+        if (action.payload) {
+          state.error = action.payload.message;
+        } else {
+          state.error = action.error.message;
+        }
+      })
+      .addCase(
+        loadSearchStandingsByLeague.fulfilled,
+        (state, action: PayloadAction<fromModels.Team[]>) => {
+          state.standings = action.payload;
+        },
+      )
+      .addCase(loadSearchStandingsByLeague.rejected, (state, action) => {
         if (action.payload) {
           state.error = action.payload.message;
         } else {
@@ -516,6 +572,16 @@ export const tournamentSlice = createSlice({
         }
       })
       .addCase(submitVoteForCast.rejected, (state, action) => {
+        if (action.payload) {
+          state.error = action.payload.message;
+        } else {
+          state.error = action.error.message;
+        }
+      })
+      .addCase(loadSubstituteByLeague.fulfilled, (state, action) => {
+        state.substitutePlayers = action.payload;
+      })
+      .addCase(loadSubstituteByLeague.rejected, (state, action) => {
         if (action.payload) {
           state.error = action.payload.message;
         } else {
@@ -606,6 +672,8 @@ export const {
   resetFilterRegRank,
   setStandingsLoading,
   resetStandingsLoading,
+  setStandingsSearchLoading,
+  resetStandingsSearchLoading,
   setPlayerScreenLoading,
   resetPlayerScreenLoading,
   setTeamStatsLoading,
@@ -630,7 +698,7 @@ export const getLeagueRegionsWithCode = createSelector(
         ...region,
         code: indexRegionByName[`${region.name}`] ?? "",
       };
-    });
+    }); 
     data.unshift({ id: "", code: "", name: "Worldwide", icon: "" });
     return data;
   },
@@ -641,6 +709,8 @@ export const getLeagueStandings = (state: RootState) =>
   state.tournament.standings;
 export const getStandingsLoading = (state: RootState) =>
   state.tournament.standingsLoading;
+export const getStandingsSearchLoading = (state: RootState) =>
+  state.tournament.standingsSearchLoading;
 export const getFilterRegionRank = (state: RootState) =>
   state.tournament.filterRegRank;
 export const getLeagueStandingById = createSelector(
@@ -662,6 +732,7 @@ export const getLeagueUpcomingMatches = (state: RootState) =>
 export const getLeagueMatchesHistory = (state: RootState) =>
   state.tournament.pastMatches;
 export const getPlayers = (state: RootState) => state.tournament.teamPlayers;
+export const getSubstitute = (state: RootState) => state.tournament.substitutePlayers;
 export const getCasters = (state: RootState) => state.tournament.casters;
 export const getPlayerDetails = (state: RootState) =>
   state.tournament.playerDetails;

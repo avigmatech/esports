@@ -18,6 +18,8 @@ const TeamMatchHistory = ({
   goToTeamDetails,
 }: Props) => {
   const renderItem = (item: fromModels.MatchHistory) => {
+    // console.log(item,"itemmmmm");
+    
     return (
       <Card
         style={{ marginBottom: 10 }}
@@ -35,7 +37,7 @@ const TeamMatchHistory = ({
                 />
               </TouchableRipple>
               <Text primary subtitle center>
-                {item.awayTeam.name}
+                {item.homeTeam.name}
               </Text>
             </Block>
             <Block noflex marginHorizontal={25} center middle>

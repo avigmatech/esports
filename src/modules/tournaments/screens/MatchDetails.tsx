@@ -63,6 +63,7 @@ const MatchDetails = ({ navigation, route }: Props) => {
         navigation.setOptions({
           headerTitle: "Match Details",
         });
+        console.log(matchStats, "matchStats");
         dispatch(
           loadTeamsStats({
             homeTeamId: matchDetails.homeTeam.id,

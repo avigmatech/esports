@@ -100,6 +100,17 @@ const TeamDetails = ({ navigation, route }: Props) => {
     });
   };
 
+  const redirectToMatchDetails = (match: fromModels.BaseMatch) => {
+    navigation.navigate("MatchDetails", {
+      matchId: match.id,
+    });
+  };
+  const redirectToTeamDetails = (match: fromModels.BaseTeam) => {
+    // navigation.navigate("MatchDetails", {
+    //   matchId: match.id,
+    // });
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView>
@@ -117,7 +128,11 @@ const TeamDetails = ({ navigation, route }: Props) => {
                 Past Matches
               </Text>
             </Block>
-            <TeamMatchHistory matches={matchesHistories} />
+            <TeamMatchHistory
+              matches={matchesHistories}
+              goToMatchDetails={redirectToMatchDetails}
+              goToTeamDetails={redirectToTeamDetails}
+            />
           </Block>
         </Block>
       </ScrollView>

@@ -13,6 +13,7 @@ import {
   League,
   TeamsStats,
   MatchTeamDetails,
+  SubstitutePlayer,
 } from "./games";
 
 export interface CustomError {
@@ -30,6 +31,7 @@ export interface TournamentState {
   regions: Region[];
   seasons: Season[];
   casters: Caster[];
+  substitutePlayers:SubstitutePlayer[];
   maps: BaseStadium[];
   standings: Team[];
   standingsLoading: boolean;

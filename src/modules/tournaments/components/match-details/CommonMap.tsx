@@ -14,6 +14,8 @@ type Props = {
 };
 
 const CommonMaps = ({ maps = [], homeTeam, awayTeam }: Props) => {
+  console.log(maps,"maps");
+  
   const renderItem = (item: fromModels.Stadium) => {
     return (
       <Card style={{ marginBottom: 10 }}>

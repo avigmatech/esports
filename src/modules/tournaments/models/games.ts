@@ -181,6 +181,14 @@ export interface StandingRequest {
   season?: string;
 }
 
+export interface StandingRequestSearch {
+  name:string;
+  league: string;
+  region?: string;
+  rankMin?: number;
+  season?: string;
+}
+
 export interface TeamDetPlayers {
   id: string;
   game: string;
@@ -202,6 +210,17 @@ export interface Player {
   nationality: string;
   roleID: string;
   role: string;
+}
+
+export interface SubstitutePlayer {
+  playerID: string;
+  userID: string;
+  userName: string;
+  userLogo: string;
+  regionID: string;
+  regionName: string;
+  dateJoinedUTC: string;
+  mmr: string;
 }
 
 export interface League {

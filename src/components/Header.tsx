@@ -9,7 +9,7 @@ import Block from "./Block";
 import Text from "./Text";
 
 type Props = StackHeaderProps & {
-  // hideBackBtn?: boolean;
+  hideBackBtn?: boolean;
   hideDrawerToggle?: boolean;
 };
 
@@ -21,7 +21,7 @@ const Header = ({
   scene,
   previous,
   navigation,
-  // hideBackBtn,
+  hideBackBtn,
   hideDrawerToggle,
 }: Props) => {
   const theme = useTheme();
@@ -35,9 +35,9 @@ const Header = ({
       : scene.route.name;
 
   const renderBackAction = () => {
-    // if (previous && !hideBackBtn) {
-    //   return <Appbar.BackAction onPress={navigation.goBack} />;
-    // }
+     if (previous && !hideBackBtn) {
+       return <Appbar.BackAction onPress={navigation.goBack} />;
+     }
     if (hideDrawerToggle) {
       return;
     }

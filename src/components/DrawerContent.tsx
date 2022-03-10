@@ -13,6 +13,7 @@ import {
   Paragraph,
   Text,
   HelperText,
+  Title
 } from "react-native-paper";
 import { theme } from "./../core/theme";
 import Block from "./Block";
@@ -71,8 +72,10 @@ const DrawerContent = (props: any) => {
       <Block style={styles.drawerContent}>
         <Drawer.Section style={styles.drawerSection}>
           <Divider />
-          <DrawerItem
-            // icon={({ color, size }) => (
+          <Title style={{textAlign:'center',fontSize:18,marginBottom:25}}>
+          {activeLeague ? `${activeLeague.title} Master League` : "Select League"}
+          </Title>
+            {/* // icon={({ color, size }) => (
             //   <SimpleLineIcons name="check" color={color} size={size} />
             // )}
             label={
@@ -90,18 +93,41 @@ const DrawerContent = (props: any) => {
             //     },
             //   })
             // }
-          />
+          // /> */}
+           
           <Divider />
           <DrawerItem
             icon={({ color, size }) => (
               <SimpleLineIcons name="check" color={color} size={size} />
             )}
             label={`${activeLeague.title} Home`}
-            onPress={() =>
-              props.navigation.navigate("Home", { screen: "Home" })
+            // onPress={() =>
+            //   props.navigation.navigate("Home", { screen: "Home" })
+            // }
+             onPress={() =>
+              props.navigation.navigate("Home")
             }
           />
           <Divider />
+           <DrawerItem
+            icon={({ color, size }) => (
+              <SimpleLineIcons name="check" color={color} size={size} />
+            )}
+            label="VRML Home"
+            onPress={() => props.navigation.navigate("SelectLeague")}
+            onPress={() =>
+              props.navigation.navigate("Home", {
+                screen: "Home",
+                params: {
+                  screen: "SelectLeague",
+                  params: {
+                    afterLogin: true,
+                  },
+                },
+              })
+            }
+          
+          />
           {/* <DrawerItem
             icon={({ color, size }) => (
               <SimpleLineIcons name="check" color={color} size={size} />
@@ -148,9 +174,12 @@ const DrawerContent = (props: any) => {
               title="Create a Team"
               titleStyle={{ fontSize: 14 }}
               onPress={() =>
-                props.navigation.navigate(
-                 "CreateTeam"
-                )
+                props.navigation.navigate("Home", {
+                  screen: "Home",
+                  params: {
+                    screen: "CreateTeam",
+                  },
+                })
               }
             />
             <Divider />
@@ -158,19 +187,25 @@ const DrawerContent = (props: any) => {
               title="Join as subsitute"
               titleStyle={{ fontSize: 14 }}
               onPress={() =>
-                props.navigation.navigate(
-                  "JoinAsSubstitute"
-                )
+                props.navigation.navigate("Home", {
+                  screen: "Home",
+                  params: {
+                    screen: "JoinAsSubstitute",
+                  },
+                })
               }
             />
             <Divider />
             <List.Item
               title="Recruiting Teams"
               titleStyle={{ fontSize: 14 }}
-              onPress={() =>
-                props.navigation.navigate(
-                  "RecruitingTeams"
-                )
+               onPress={() =>
+                props.navigation.navigate("Home", {
+                  screen: "Home",
+                  params: {
+                    screen: "RecruitingTeams",
+                  },
+                })
               }
             />
           </List.Accordion>
@@ -180,9 +215,11 @@ const DrawerContent = (props: any) => {
               <SimpleLineIcons name="check" color={color} size={size} />
             )}
             label="FAQs"
-            onPress={() =>
-              props.navigation.navigate( "FAQs" 
-              )
+             onPress={() =>
+              props.navigation.navigate("Home", {
+                screen: "Home",
+                params: { screen: "FAQs" },
+              })
             }
           />
           <Divider />
@@ -192,9 +229,10 @@ const DrawerContent = (props: any) => {
             )}
             label="Our Sponsors"
             onPress={() =>
-              props.navigation.navigate(
-                 "OurSponsors" 
-              )
+              props.navigation.navigate("Home", {
+                screen: "Home",
+                params: { screen: "OurSponsors" },
+              })
             }
           />
            <DrawerItem

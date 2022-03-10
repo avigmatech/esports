@@ -1,8 +1,8 @@
 import { useFocusEffect } from "@react-navigation/native";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { SafeAreaView, ScrollView, Image } from "react-native";
 import { Block, Text } from "../../../components";
-import { BasicDetails } from "../components/players";
+import { BasicSubstituteDetails } from "../components/players";
 import { useAppDispatch, useAppSelector } from "../../../store";
 
 import * as fromModels from "../models";
@@ -14,14 +14,13 @@ type Props = {
   route: fromModels.PlayerDetailsRouteProp;
 };
 
-const PlayerDetails = ({ navigation, route }: Props) => {
+const SubstituteDetails = ({ navigation, route }: Props) => {
   const {
-    params: { playerName, playerId },
+    params: { substitute, substituteName, substituteId },
   } = route;
-  const dispatch = useAppDispatch();
-  const playerDetails: fromModels.Player | undefined = useAppSelector(
-    getPlayerDetails,
-  );
+  const Details: fromModels.Substitute | undefined = substitute;
+
+  console.log(Details, "substituteDetails");
 
   useFocusEffect(
     useCallback(() => {
@@ -29,26 +28,23 @@ const PlayerDetails = ({ navigation, route }: Props) => {
 
       if (mounted) {
         navigation.setOptions({
-          headerTitle: playerName,
+          headerTitle: substituteName,
         });
-        dispatch(loadPlayerDetails(playerId));
       }
 
       return () => {
         mounted = false;
       };
-    }, [playerId, playerName]),
+    }, [substituteId, substituteName, substitute]),
   );
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView>
-        <Block>
-          {playerDetails && <BasicDetails details={playerDetails} />}
-        </Block>
+        <Block>{Details && <BasicSubstituteDetails Details={Details} />}</Block>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default PlayerDetails;
+export default SubstituteDetails;

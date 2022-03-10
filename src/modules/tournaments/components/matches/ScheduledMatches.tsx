@@ -14,6 +14,7 @@ type Props = {
 };
 
 const ScheduledMatches = ({ matches, voteTeam, voteCast }: Props) => {
+
   const renderItem = (item: fromModels.Match) => {
     return (
       <Block

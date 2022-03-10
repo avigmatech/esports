@@ -1,7 +1,7 @@
 import { useFocusEffect, useIsFocused } from "@react-navigation/core";
 import React, { useCallback, useState } from "react";
 
-import { StyleSheet,ScrollView } from "react-native";
+import { StyleSheet, ScrollView } from "react-native";
 import { Tabs, TabScreen } from "react-native-paper-tabs";
 import {
   Dialog,
@@ -140,7 +140,6 @@ const Matches = ({ navigation }: Props) => {
       region: selectedRegion,
       posMin: posMin,
       season: selectedSeason,
-      
     });
     hideDialog();
   };
@@ -162,13 +161,13 @@ const Matches = ({ navigation }: Props) => {
         <Dialog visible={visible} onDismiss={hideDialog}>
           <Dialog.Title>Filter</Dialog.Title>
           <Divider />
-          <Dialog.ScrollArea 
-            style={{ 
+          <Dialog.ScrollArea
+            style={{
               paddingHorizontal: 0,
-               maxHeight: 400, 
+              maxHeight: 400,
             }}>
             <ScrollView>
-             <List.Section>
+              {/* <List.Section>
                 <List.Subheader>Season</List.Subheader>
                 <RadioButton.Group
                   onValueChange={newValue => setSelectedSeason(newValue)}
@@ -184,40 +183,39 @@ const Matches = ({ navigation }: Props) => {
                     />
                   ))}
                 </RadioButton.Group>
+              </List.Section> */}
+              <List.Section>
+                <List.Subheader>Region</List.Subheader>
+                <RadioButton.Group
+                  onValueChange={newValue => setSelectedRegion(newValue)}
+                  value={selectedRegion}>
+                  {regions.map(region => (
+                    <RadioButton.Item
+                      label={region.title}
+                      value={region.code}
+                      key={`region-${region.code}`}
+                    />
+                  ))}
+                </RadioButton.Group>
               </List.Section>
-            <List.Section>
-              <List.Subheader>Region</List.Subheader>
-              <RadioButton.Group
-                onValueChange={newValue => setSelectedRegion(newValue)}
-                value={selectedRegion}>
-                {regions.map(region => (
-                  <RadioButton.Item
-                    label={region.title}
-                    value={region.code}
-                    key={`region-${region.code}`}
-                  />
-                ))}
-              </RadioButton.Group>
-            </List.Section>
-            <Divider />
+              <Divider />
               <List.Section>
                 <List.Subheader>Min Rank</List.Subheader>
-                  {/* {tabIndex === 1 && ( */}
-              <Block noflex paddingHorizontal={20}>
-                <TextInput
-                  placeholder="Minimum Rank"
-                  value={posMin}
-                  onChangeText={text => setPosMin(text)}
-                  inputStyle={styles.textInput}
-                  placeholderTextColor="#adadad"
-                  containerStyle={styles.textInputContainer}
-                  // keyboardType="numeric"
-                />
-              </Block>
-            {/* )} */}
+                {/* {tabIndex === 1 && ( */}
+                <Block noflex paddingHorizontal={20}>
+                  <TextInput
+                    placeholder="Minimum Rank"
+                    value={posMin}
+                    onChangeText={text => setPosMin(text)}
+                    inputStyle={styles.textInput}
+                    placeholderTextColor="#adadad"
+                    containerStyle={styles.textInputContainer}
+                    // keyboardType="numeric"
+                  />
+                </Block>
+                {/* )} */}
               </List.Section>
-          
-          </ScrollView>
+            </ScrollView>
           </Dialog.ScrollArea>
           <Divider />
           <Dialog.Actions>
@@ -271,7 +269,7 @@ const Matches = ({ navigation }: Props) => {
                 : pastMatches.length > 0 && isFocused
             }
           />
-              {/* <TouchableOpacity
+          {/* <TouchableOpacity
           visible={
               tabIndex === 0
                 ? upcomingMatches.length > 0 && isFocused
