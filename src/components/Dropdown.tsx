@@ -49,6 +49,7 @@ const Dropdown = ({
       zIndex={zIndex}
       zIndexInverse={zIndexReverse}
       style={styles.dropdown}
+      closeIconContainerStyle={{marginTop: Platform.OS === "ios" ? 50:0}}
       scrollViewProps={{
         nestedScrollEnabled: true,
         persistentScrollbar: true,
@@ -60,13 +61,14 @@ const Dropdown = ({
         borderRadius: 0,
         height: 40,
         color: theme.colors.text,
+        marginTop: Platform.OS === "ios" ? 50:0
       }}
       placeholderStyle={{
         color: theme.colors.text,
+        
       }}
       modalContentContainerStyle={{
-        marginTop:Platform.OS === "ios"? 35:0,
-
+        marginTop:Platform.OS === "ios"? 0:0,
       }}
     />
   );

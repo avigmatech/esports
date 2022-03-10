@@ -103,7 +103,6 @@ const Login = ({ navigation }: Props) => {
   const [loading, setLoading] = useState(false);
   const [usernameLoading, setUsernameLoading] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState(false);
-
   const [passwordReveal, setPasswordReveal] = useState(false);
   const [confirmPasswordReveal, setConfirmPasswordReveal] = useState(false);
 
@@ -155,37 +154,27 @@ const Login = ({ navigation }: Props) => {
   };
 
   const handleUsernameCheck = async (username: string) => {
-    debugger;
-    console.log("hiiii");
     setUsernameAvailable(false);
-    console.log("hiiii666");
+    console.log(username, "username");
+
     if (!username.match(/^[a-zA-Z0-9\-_]{0,40}$/)) {
-      console.log("hiiii1");
       setErrorForm("username", { message: "Username must be alphanumeric" });
       return false;
     }
-    console.log("hiiii2");
     setUsernameLoading(true);
     clearErrors("username");
     try {
       if (username.trim()) {
-        console.log("hiiii3");
         const { exists }: IUsernameExists = await checkUsername(
           username.trim(),
         );
-        console.log("hiiii4");
-
         if (exists) {
-          console.log("hiiii5");
           setErrorForm("username", { message: "Username already in use." });
         } else {
-          console.log("hiiii6");
           setUsernameAvailable(true);
         }
-        console.log("hiiii7");
         setUsernameLoading(false);
       } else {
-        console.log("hiiii8");
         setUsernameLoading(false);
       }
     } catch (error) {
@@ -235,7 +224,7 @@ const Login = ({ navigation }: Props) => {
                   inputStyle={styles.textInput}
                   placeholderTextColor="#adadad"
                   containerStyle={styles.textInputContainer}
-                  onBlur={(event: any) =>
+                  onEndEditing={(event: any) =>
                     handleUsernameCheck(event.nativeEvent.text)
                   }
                   right={

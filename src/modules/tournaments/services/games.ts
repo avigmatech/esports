@@ -1,4 +1,4 @@
-import { api } from "../../../utils";
+import { api, apisubstitute } from "../../../utils";
 import * as fromModels from "../models";
 
 // Function Calls
@@ -10,10 +10,10 @@ export const getPlayersByLeague = async (
 };
 
 export const getSubstitutesByLeague = async (
-  league: string,
-  region?: string,
-): Promise<fromModels.Substitute[]> => {
-  return api().get(`/${league}/Players?region=${region}`);
+  game: string,
+): Promise<fromModels.SubstitutePlayer[]> => {
+  return await apisubstitute().get(`/${game}/Substitutes`);
+  console.log(game,"game");
 };
 
 export const getConnoissuersByLeague = async (
@@ -45,7 +45,15 @@ export const getStandingsByLeague = async (
   data: fromModels.StandingRequest,
 ): Promise<fromModels.Team[]> => {
   return await api().get(
-    `/${data.league}/Standings?region=${data.region}&rankMin=${data.rankMin}`,
+    `/${data.league}/Standings?region=${data.region}&rankMin=${data.rankMin}&season=${data.season}`,
+  );
+};
+
+export const getSearchStandingsByLeague = async (
+  data: fromModels.StandingRequestSearch,
+): Promise<fromModels.Team[]> => {
+  return await api().get(
+    `/${data.league}/Teams/Search?name=${data.name}&region=${data.region}&rankMin=${data.rankMin}&season=${data.season}`,
   );
 };
 

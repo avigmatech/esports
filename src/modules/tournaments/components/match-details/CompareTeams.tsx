@@ -17,6 +17,8 @@ const { width } = Dimensions.get("window");
 const playerContWidth = (width - (20 + 20)) / 2;
 
 const CompareTeams = ({ matchStats, homeTeam, awayTeam }: Props) => {
+  console.log(matchStats,"matchStatsmatchStats");
+  
   return (
     <Card style={styles.card}>
       <Card.Title title="Team Details" />

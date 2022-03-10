@@ -8,6 +8,8 @@ import Standings from "./screens/Standings";
 import TeamDetails from "./screens/TeamDetails";
 import Matches from "./screens/Matches";
 import PlayerDetails from "./screens/PlayerDetails";
+import SubstituteDetails from "./screens/SubstituteDetails";
+
 import Home from "./screens/Home";
 import SelectLeague from "./screens/SelectLeague";
 import CreateTeam from "./screens/CreateTeam";
@@ -33,6 +35,7 @@ const PlayersStackNavigator = () => {
       }}>
       <Screen name="Players" component={PlayersScreen} />
       <Screen name="PlayerDetails" component={PlayerDetails} />
+      <Screen name="SubstituteDetails" component={SubstituteDetails} />
     </Navigator>
   );
 };
@@ -47,6 +50,7 @@ const StandingsStackNavigator = () => {
       <Screen name="Standings" component={Standings} />
       <Screen name="TeamDetails" component={TeamDetails} />
       <Screen name="PlayerDetails" component={PlayerDetails} />
+      <Screen name="MatchDetails" component={MatchDetails} />
     </Navigator>
   );
 };
@@ -131,7 +135,7 @@ const SelectLeagueNavigator = () => {
       <Screen
         name="SelectLeague"
         component={SelectLeague}
-        options={{ headerTitle: "Select League" }}  // center it
+        options={{ headerTitle: "Select League" }} // center it
       />
     </Navigator>
   );

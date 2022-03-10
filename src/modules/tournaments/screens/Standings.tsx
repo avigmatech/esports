@@ -7,9 +7,13 @@ import {
   Alert,
   RefreshControl,
   TouchableOpacity,
-  Platform
+  Platform,
 } from "react-native";
 import { useFocusEffect, useIsFocused } from "@react-navigation/core";
+import DropDownPicker, {
+  ListModeType,
+  ValueType,
+} from "react-native-dropdown-picker";
 import {
   DataTable,
   FAB,
@@ -25,6 +29,7 @@ import {
   ActivityIndicator,
   Modal,
 } from "react-native-paper";
+import Icon from "react-native-vector-icons/Feather";
 
 import { Block, Dropdown, Text, TextInput } from "../../../components";
 import { useAppDispatch, useAppSelector } from "../../../store";
@@ -34,9 +39,12 @@ import {
   getLeagueSeasons,
   getLeagueStandings,
   getStandingsLoading,
+  // getStandingsSearchLoading,
+  getSearchStandingsByLeague,
   loadRegionsByLeague,
   loadSeasonsByLeague,
   loadStandingsByLeague,
+  loadSearchStandingsByLeague,
   resetStandingsLoading,
   submitRecruitMe,
 } from "../store";
@@ -47,7 +55,6 @@ import { theme as coreTheme, theme } from "../../../core/theme";
 import { clearHeaderSubTitle, setHeaderSubTitle } from "../../common/store";
 import { FILTER_REGIONS, indexRegionByName } from "../../../config";
 import { useToast } from "react-native-paper-toast";
-import { ValueType } from "react-native-dropdown-picker";
 
 type Props = {
   navigation: fromModels.StandingsStackNavigationProp;
@@ -68,6 +75,8 @@ const Standings = ({ navigation }: Props) => {
   // const [regions, setRegions] = useState<{ code: string; title: string }[]>(
   //   FILTER_REGIONS,
   // );
+  const [searchtext, setSearchtext] = useState([]);
+  const [search, setSearch] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState<string>("");
   const [rankMin, setRankMin] = useState<string>("");
   const [paginateRankMax, setPaginateRankMax] = useState<number | undefined>(
@@ -113,6 +122,8 @@ const Standings = ({ navigation }: Props) => {
   const hideDialog = () => setVisible(false);
 
   useEffect(() => {
+    console.log(seasons, "seasons");
+
     const unsubscribe = navigation.addListener("blur", () => {
       dispatch(clearHeaderSubTitle());
     });
@@ -145,6 +156,7 @@ const Standings = ({ navigation }: Props) => {
         let request: fromModels.StandingRequest = {
           league: activeLeague.key,
         };
+
         if (filterRegionRank) {
           request = {
             ...request,
@@ -160,12 +172,20 @@ const Standings = ({ navigation }: Props) => {
             navigation.setOptions({
               headerTitle: rg?.name,
             });
+          } else if (filterRegionRank.season) {
+            const rg = regions.find(
+              item => item.code === filterRegionRank.season,
+            );
+            navigation.setOptions({
+              headerTitle: rg?.name,
+            });
           } else {
             navigation.setOptions({
               headerTitle: "Worldwide",
             });
           }
         }
+        console.log(request, "request");
 
         dispatch(loadStandingsByLeague(request));
       }
@@ -184,7 +204,9 @@ const Standings = ({ navigation }: Props) => {
           league: activeLeague.key,
           rankMin: paginateRankMax,
         };
+
         const resultAction = dispatch(loadStandingsByLeague(request));
+
         resultAction.then(() => {
           ref.current?.scrollTo({ x: 0, y: 0, animated: true });
         });
@@ -250,7 +272,33 @@ const Standings = ({ navigation }: Props) => {
 
   const paginate = () => {
     const maxRank = Math.max(...standings.map(item => item.rank));
+    // const maxRankForSearch = Math.max(...searchtext.map(item => item.rank));
     setPaginateRankMax(maxRank + 1);
+    // setPaginateRankMax(maxRankForSearch + 1);
+  };
+
+  const handleSearch = e => {
+    setSearch(true);
+    if (e) {
+      setSearchtext(
+        standings.filter(i => i.name.toLowerCase().includes(e.toLowerCase())),
+      );
+      console.log(searchtext, "after_search");
+    } else {
+      setSearch(false);
+      // let request: fromModels.StandingRequest = {
+      //   league: activeLeague.key,
+      // };
+      // if (filterRegionRank) {
+      //   request = {
+      //     ...request,
+      //     region: filterRegionRank.region,
+      //     rankMin: parseInt(filterRegionRank.rankMin, 10),
+      //     season: filterRegionRank.season,
+      //   };
+      //   dispatch(loadStandingsByLeague(request));
+      // }
+    }
   };
 
   const renderRegionRegFilterModal = () => {
@@ -312,7 +360,7 @@ const Standings = ({ navigation }: Props) => {
                     inputStyle={styles.textInput}
                     placeholderTextColor="#adadad"
                     containerStyle={styles.textInputContainer}
-                    // keyboardType="numeric"
+                    keyboardType="numeric"
                   />
                 </Block>
               </List.Section>
@@ -331,10 +379,19 @@ const Standings = ({ navigation }: Props) => {
   return (
     <React.Fragment>
       <SafeAreaView style={{ flex: 1 }}>
-      {/* <Block noflex paddingHorizontal={}>
-      <Dropdown></Dropdown>
-      </Block> */}
-
+        <Block noflex>
+          <TextInput
+            placeholder="Search for a team in this region"
+            returnKeyType="next"
+            onChangeText={e => handleSearch(e)}
+            autoCapitalize="none"
+            placeholderTextColor="#adadad"
+            inputStyle={styles.textInput}
+            placeholderTextColor="#adadad"
+            containerStyle={styles.textInputContainer}
+          />
+          <Icon name="search" color="#ffffff" size={25} style={styles.search} />
+        </Block>
         <DataTable
           style={{
             marginBottom: 50,
@@ -389,92 +446,183 @@ const Standings = ({ navigation }: Props) => {
                   colors={[theme.colors.primary, theme.colors.text]}
                 />
               }>
-              {standings.map(standing => (
-                <DataTable.Row
-                  key={`standings-${standing.id}`}
-                  style={{ paddingHorizontal: 0 }}>
-                  <DataTable.Cell
-                    style={{
-                      justifyContent: "center",
-                    }}>
-                    {standing.rank}
-                  </DataTable.Cell>
-                  <DataTable.Cell
-                    style={{
-                      justifyContent: "center",
-                      paddingVertical: 0,
-                      marginVertical: 0,
-                    }}>
-                    <Block>
-                      <Image
-                        source={{ uri: resolveImage(standing.divisionLogo) }}
+              {search
+                ? searchtext.map(standing => (
+                    <DataTable.Row
+                      key={`standings-${standing.id}`}
+                      style={{ paddingHorizontal: 0 }}>
+                      <DataTable.Cell
                         style={{
-                          width: 20,
-                          height: 20,
-                        }}
-                      />
-                    </Block>
-                  </DataTable.Cell>
+                          justifyContent: "center",
+                        }}>
+                        {standing.rank}
+                      </DataTable.Cell>
+                      <DataTable.Cell
+                        style={{
+                          justifyContent: "center",
+                          paddingVertical: 0,
+                          marginVertical: 0,
+                        }}>
+                        <Block>
+                          <Image
+                            source={{
+                              uri: resolveImage(standing.divisionLogo),
+                            }}
+                            style={{
+                              width: 20,
+                              height: 20,
+                            }}
+                          />
+                        </Block>
+                      </DataTable.Cell>
 
-                  <Block row style={{ flex: 3 }} center>
-                    <TouchableRipple
-                      style={{ flex: 1, flexDirection: "row" }}
-                      onPress={() => goToTeamDetails(standing)}>
-                      <Block row center>
-                        <Image
-                          source={{ uri: resolveImage(standing.logo) }}
-                          style={{
-                            width: 20,
-                            height: 20,
-                            marginRight: 10,
-                            marginLeft: 5,
-                          }}
-                        />
-                        <Text
-                          subtitle
-                          size={13}
-                          style={{ flex: 1, flexWrap: "wrap" }}>
-                          {standing.name}
-                        </Text>
+                      <Block row style={{ flex: 3 }} center>
+                        <TouchableRipple
+                          style={{ flex: 1, flexDirection: "row" }}
+                          onPress={() => goToTeamDetails(standing)}>
+                          <Block row center>
+                            <Image
+                              source={{ uri: resolveImage(standing.logo) }}
+                              style={{
+                                width: 20,
+                                height: 20,
+                                marginRight: 10,
+                                marginLeft: 5,
+                              }}
+                            />
+                            <Text
+                              subtitle
+                              size={13}
+                              style={{ flex: 1, flexWrap: "wrap" }}>
+                              {standing.name}
+                            </Text>
+                          </Block>
+                        </TouchableRipple>
+                        {standing.isRecruiting && (
+                          <TouchableRipple
+                            style={{ flex: 0, borderRadius: 50 }}
+                            onPress={() => recruitMe(standing)}>
+                            <Image
+                              source={require("../../../assets/icons/teamIsRecruiting.png")}
+                              style={{ width: 20, height: 20 }}
+                            />
+                          </TouchableRipple>
+                        )}
                       </Block>
-                    </TouchableRipple>
-                    {standing.isRecruiting && (
-                      <TouchableRipple
-                        style={{ flex: 0, borderRadius: 50 }}
-                        onPress={() => recruitMe(standing)}>
-                        <Image
-                          source={require("../../../assets/icons/teamIsRecruiting.png")}
-                          style={{ width: 20, height: 20 }}
-                        />
-                      </TouchableRipple>
-                    )}
-                  </Block>
-                  <DataTable.Cell
-                    style={{
-                      justifyContent: "center",
-                    }}>
-                    {indexRegionByName[standing.region] ?? "-"}
-                  </DataTable.Cell>
-                  <DataTable.Cell
-                    style={{
-                      justifyContent: "center",
-                    }}>
-                    {standing.w}/{standing.l}
-                  </DataTable.Cell>
-                  <DataTable.Cell
-                    style={{
-                      justifyContent: "center",
-                    }}>
-                    {standing.pts}
-                  </DataTable.Cell>
-                  <DataTable.Cell
-                    style={{
-                      justifyContent: "center",
-                    }}>
-                    {standing.mmr}
-                  </DataTable.Cell>
-                </DataTable.Row>
-              ))}
+                      <DataTable.Cell
+                        style={{
+                          justifyContent: "center",
+                        }}>
+                        {indexRegionByName[standing.region] ?? "-"}
+                      </DataTable.Cell>
+                      <DataTable.Cell
+                        style={{
+                          justifyContent: "center",
+                        }}>
+                        {standing.w}/{standing.l}
+                      </DataTable.Cell>
+                      <DataTable.Cell
+                        style={{
+                          justifyContent: "center",
+                        }}>
+                        {standing.pts}
+                      </DataTable.Cell>
+                      <DataTable.Cell
+                        style={{
+                          justifyContent: "center",
+                        }}>
+                        {standing.mmr}
+                      </DataTable.Cell>
+                    </DataTable.Row>
+                  ))
+                : standings.map(standing => (
+                    <DataTable.Row
+                      key={`standings-${standing.id}`}
+                      style={{ paddingHorizontal: 0 }}>
+                      <DataTable.Cell
+                        style={{
+                          justifyContent: "center",
+                        }}>
+                        {standing.rank}
+                      </DataTable.Cell>
+                      <DataTable.Cell
+                        style={{
+                          justifyContent: "center",
+                          paddingVertical: 0,
+                          marginVertical: 0,
+                        }}>
+                        <Block>
+                          <Image
+                            source={{
+                              uri: resolveImage(standing.divisionLogo),
+                            }}
+                            style={{
+                              width: 20,
+                              height: 20,
+                            }}
+                          />
+                        </Block>
+                      </DataTable.Cell>
+
+                      <Block row style={{ flex: 3 }} center>
+                        <TouchableRipple
+                          style={{ flex: 1, flexDirection: "row" }}
+                          onPress={() => goToTeamDetails(standing)}>
+                          <Block row center>
+                            <Image
+                              source={{ uri: resolveImage(standing.logo) }}
+                              style={{
+                                width: 20,
+                                height: 20,
+                                marginRight: 10,
+                                marginLeft: 5,
+                              }}
+                            />
+                            <Text
+                              subtitle
+                              size={13}
+                              style={{ flex: 1, flexWrap: "wrap" }}>
+                              {standing.name}
+                            </Text>
+                          </Block>
+                        </TouchableRipple>
+                        {standing.isRecruiting && (
+                          <TouchableRipple
+                            style={{ flex: 0, borderRadius: 50 }}
+                            onPress={() => recruitMe(standing)}>
+                            <Image
+                              source={require("../../../assets/icons/teamIsRecruiting.png")}
+                              style={{ width: 20, height: 20 }}
+                            />
+                          </TouchableRipple>
+                        )}
+                      </Block>
+                      <DataTable.Cell
+                        style={{
+                          justifyContent: "center",
+                        }}>
+                        {indexRegionByName[standing.region] ?? "-"}
+                      </DataTable.Cell>
+                      <DataTable.Cell
+                        style={{
+                          justifyContent: "center",
+                        }}>
+                        {standing.w}/{standing.l}
+                      </DataTable.Cell>
+                      <DataTable.Cell
+                        style={{
+                          justifyContent: "center",
+                        }}>
+                        {standing.pts}
+                      </DataTable.Cell>
+                      <DataTable.Cell
+                        style={{
+                          justifyContent: "center",
+                        }}>
+                        {standing.mmr}
+                      </DataTable.Cell>
+                    </DataTable.Row>
+                  ))}
               <Block noflex center>
                 <IconButton
                   icon="arrow-down"
@@ -504,7 +652,7 @@ const Standings = ({ navigation }: Props) => {
               onPress={showDialog}
               visible={isFocused}
             />
-          {/* <TouchableOpacity
+            {/* <TouchableOpacity
             visible={isFocused}
             onPress={showDialog}
             style ={{marginTop:Platform.OS === "ios" ? "17%" : "5%",
@@ -513,7 +661,7 @@ const Standings = ({ navigation }: Props) => {
                   }}>
           <Text style ={{fontWeight:'700'}}>Filter</Text>
         </TouchableOpacity> */}
-      </Portal>
+          </Portal>
         )}
       </SafeAreaView>
     </React.Fragment>
@@ -536,5 +684,10 @@ const styles = StyleSheet.create({
   textInputContainer: {
     marginVertical: 0,
     marginBottom: 10,
+  },
+  search: {
+    position: "absolute",
+    right: 10,
+    top: 10,
   },
 });

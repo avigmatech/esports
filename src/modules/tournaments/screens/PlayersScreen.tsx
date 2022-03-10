@@ -1,12 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react";
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet
-} from "react-native";
-import Icon from "react-native-vector-icons/Feather";
+import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
 import { Tabs, TabScreen } from "react-native-paper-tabs";
-import { useFocusEffect,useIsFocused } from "@react-navigation/core";
+import { useFocusEffect, useIsFocused } from "@react-navigation/core";
 import {
   DataTable,
   FAB,
@@ -31,14 +26,17 @@ import {
 } from "./../components/players";
 import { useAppDispatch, useAppSelector } from "../../../store";
 import { getActiveLeague } from "../../tournaments/store";
+
 import {
   getCasters,
   getPlayers,
+  getSubstitute,
   getPlayerScreenLoading,
   loadCastersByLeague,
   loadPlayersByLeague,
   getLeagueSeasons,
-  getLeagueRegionsWithCode
+  loadSubstituteByLeague,
+  getLeagueRegionsWithCode,
 } from "../store";
 import * as fromModels from "../models";
 import { theme as coreTheme, theme } from "../../../core/theme";
@@ -55,7 +53,9 @@ const PlayersScreen = ({ navigation }: Props) => {
   // const regions = useAppSelector(getLeagueRegionsWithCode);
   // const activeLeague: fromModels.League = useAppSelector(getActiveLeague)!;
   const teams = useAppSelector(getPlayers);
-  // const casters = useAppSelector(getCasters);
+
+  const casters = useAppSelector(getCasters);
+
   const [tabIndex, setTabIndex] = useState<number>(0);
   const loading = useAppSelector(getPlayerScreenLoading);
   const [selectedRegion, setSelectedRegion] = useState<string>("");
@@ -65,11 +65,13 @@ const PlayersScreen = ({ navigation }: Props) => {
     FILTER_REGIONS,
   );
   const [paginateRankMax, setPaginateRankMax] = useState<number | undefined>(
-   undefined,
+    undefined,
   );
   const [posMin, setPosMin] = useState<string>("");
   const [rankMin, setRankMin] = useState<string>("");
   const [visible, setVisible] = React.useState(false);
+  const [searchtext, setSearchtext] = useState([]);
+  const [substitute, setSubstitue] = useState([]);
   const [filterRegionRank, setFilterRegionRank] = useState<
     | {
         region: string;
@@ -97,7 +99,7 @@ const PlayersScreen = ({ navigation }: Props) => {
 
       if (mounted) {
         let request: fromModels.StandingRequest = {
-            league: activeLeague.key,
+          league: activeLeague.key,
         };
         if (filterRegionRank) {
           request = {
@@ -112,17 +114,20 @@ const PlayersScreen = ({ navigation }: Props) => {
               item => item.code === filterRegionRank.region,
             );
             navigation.setOptions({
-              headerTitle : rg?.name,
+              headerTitle: rg?.name,
             });
           } else {
             navigation.setOptions({
               headerTitle: "Worldwide",
             });
           }
-        } 
-         if (teams.length === 0) {
-        dispatch(loadPlayersByLeague(activeLeague.key));        
-      }
+        }
+        if (teams.length === 0) {
+          dispatch(loadPlayersByLeague(activeLeague.key));
+        }
+        // if (subst.length === 0) {
+        //   dispatch(loadSubstituteByLeague(activeLeague.key));
+        // }
       }
       // if (casters.length === 0) {
       //   dispatch(loadCastersByLeague(activeLeague.key));
@@ -131,27 +136,26 @@ const PlayersScreen = ({ navigation }: Props) => {
       return () => {
         mounted = false;
       };
-    }, [activeLeague,filterRegionRank]),
+    }, [activeLeague, filterRegionRank]),
   );
 
-  // useEffect(() => {
-  //   let mounted = true;
-  //   if (mounted) {
-  //     if (paginateRankMax) {
-  //       const request: fromModels.StandingRequest = {
-  //         league: activeLeague.key,
-  //         rankMin: paginateRankMax,
-  //       };
-  //       const resultAction = dispatch(loadPlayersByLeague(request));
-  //       resultAction.then(() => {
-  //         ref.current?.scrollTo({ x: 0, y: 0, animated: true });
-  //       });
-  //     }
-  //   }
-  //   return () => {
-  //     mounted = false;
-  //   };
-  // }, [paginateRankMax]);
+  useEffect(() => {
+    SubstituteData();
+  }, []);
+
+  const SubstituteData = async () => {
+    const data = "";
+    const game = activeLeague.key;
+    try {
+      const response = await fetch(
+        `https://api.vrmasterleague.com/${game}/Substitutes`,
+      );
+      const json = await response.json();
+      setSubstitue(json.active);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const redirectToPlayerDetails = (player: fromModels.Player) => {
     navigation.navigate("PlayerDetails", {
@@ -160,15 +164,22 @@ const PlayersScreen = ({ navigation }: Props) => {
     });
   };
 
+  const redirectToSubstituteDetails = substitute => {
+    navigation.navigate("SubstituteDetails", {
+      substitute: substitute,
+      substituteId: substitute.playerID,
+      substituteName: substitute.userName,
+    });
+  };
+
   const handleRefreshTeamsData = () => {
     dispatch(loadPlayersByLeague(activeLeague.key));
+    // dispatch(loadSubstituteByLeague(activeLeague.key));
   };
 
   const handleRefreshCastersData = () => {
     dispatch(loadCastersByLeague(activeLeague.key));
   };
-
-
 
   const handleRegionFilterModal = () => {
     setFilterRegionRank({
@@ -184,13 +195,13 @@ const PlayersScreen = ({ navigation }: Props) => {
         <Dialog visible={visible} onDismiss={hideDialog}>
           <Dialog.Title>Filter</Dialog.Title>
           <Divider />
-          <Dialog.ScrollArea 
-            style={{ 
+          <Dialog.ScrollArea
+            style={{
               paddingHorizontal: 0,
-               maxHeight: 400, 
+              maxHeight: 400,
             }}>
             <ScrollView>
-             {/* <List.Section>
+              {/* <List.Section>
                 <List.Subheader>Season</List.Subheader>
                 <RadioButton.Group
                   onValueChange={newValue => setSelectedSeason(newValue)}
@@ -207,39 +218,38 @@ const PlayersScreen = ({ navigation }: Props) => {
                   ))}
                 </RadioButton.Group>
               </List.Section> */}
-            <List.Section>
-              <List.Subheader>Region</List.Subheader>
-              <RadioButton.Group
-                onValueChange={newValue => setSelectedRegion(newValue)}
-                value={selectedRegion}>
-                {regions.map(region => (
-                  <RadioButton.Item
-                    label={region.name}
-                    value={region.code}
-                    key={`region-${region.code}`}
-                  />
-                ))}
-              </RadioButton.Group>
-            </List.Section>
-            <Divider />
+              <List.Section>
+                <List.Subheader>Region</List.Subheader>
+                <RadioButton.Group
+                  onValueChange={newValue => setSelectedRegion(newValue)}
+                  value={selectedRegion}>
+                  {regions.map(region => (
+                    <RadioButton.Item
+                      label={region.name}
+                      value={region.code}
+                      key={`region-${region.code}`}
+                    />
+                  ))}
+                </RadioButton.Group>
+              </List.Section>
+              <Divider />
               <List.Section>
                 <List.Subheader>Min Rank</List.Subheader>
-                  {/* {tabIndex === 1 && ( */}
-              <Block noflex paddingHorizontal={20}>
-                <TextInput
-                  placeholder="Minimum Rank"
-                  value={rankMin}
-                  onChangeText={text => setRankMin(text)}
-                  inputStyle={styles.textInput}
-                  placeholderTextColor="#adadad"
-                  containerStyle={styles.textInputContainer}
-                  // keyboardType="numeric"
-                />
-              </Block>
-            {/* )} */}
+                {/* {tabIndex === 1 && ( */}
+                <Block noflex paddingHorizontal={20}>
+                  <TextInput
+                    placeholder="Minimum Rank"
+                    value={rankMin}
+                    onChangeText={text => setRankMin(text)}
+                    inputStyle={styles.textInput}
+                    placeholderTextColor="#adadad"
+                    containerStyle={styles.textInputContainer}
+                    keyboardType="numeric"
+                  />
+                </Block>
+                {/* )} */}
               </List.Section>
-          
-          </ScrollView>
+            </ScrollView>
           </Dialog.ScrollArea>
           <Divider />
           <Dialog.Actions>
@@ -253,38 +263,37 @@ const PlayersScreen = ({ navigation }: Props) => {
 
   return (
     <React.Fragment>
-      {/* <Block noflex paddingHorizontal={0} style={{top:-11}}>
-      <TextInput placeholder="Search for a Player" onChangeText={console.log(teams[0].players[0].name,"teamsteams")}
-        />
-      <Icon name="search" size={25} color="#ffffff" style= {{position:"absolute", right:10, top:20}}/>
-      </Block> */}
       <Tabs>
-      <TabScreen label={"Players"}>
-        <Players
-          teams={teams}
-          handlePlayerDetails={redirectToPlayerDetails}
-          refreshData={handleRefreshTeamsData}
-          loading={loading}
-        />
-      </TabScreen>
-      <TabScreen label={"Substitutes"}>
-        <Substitutes />
-      </TabScreen>
-      {/* 
+        <TabScreen label={"Players"}>
+          <Players
+            teams={teams}
+            handlePlayerDetails={redirectToPlayerDetails}
+            refreshData={handleRefreshTeamsData}
+            // handleSearch={handleSearch}
+            loading={loading}
+          />
+        </TabScreen>
+        <TabScreen label={"Substitutes"}>
+          <Substitutes
+            substitute={substitute}
+            handleSubstituteDetails={redirectToSubstituteDetails}
+          />
+        </TabScreen>
+        {/* 
       <TabScreen label={"Connoissueurs"}>
         <Connoissueurs />
       </TabScreen> */}
-      {/* <TabScreen label={"Casters"}>
+        {/* <TabScreen label={"Casters"}>
         <Block margin={10}>
           <Casters casters={casters} refreshData={handleRefreshCastersData} />
         </Block>
       </TabScreen> */}
-      {/* <TabScreen label={"Cooldown"}>
+        {/* <TabScreen label={"Cooldown"}>
         <Connoissueurs />
       </TabScreen> */}
-    </Tabs>
-     
-    {/* {renderFilterModal()}
+      </Tabs>
+
+      {/* {renderFilterModal()}
     {!visible && (
       <Portal>
         <FAB
@@ -301,7 +310,7 @@ const PlayersScreen = ({ navigation }: Props) => {
         />
       </Portal> 
     )} */}
-  </React.Fragment>
+    </React.Fragment>
   );
 };
 
@@ -317,9 +326,15 @@ const styles = StyleSheet.create({
     zIndex: 100,
     backgroundColor: coreTheme.colors.background,
     paddingLeft: 10,
+    borderBottomColor: "transparent",
   },
   textInputContainer: {
     marginVertical: 0,
     marginBottom: 10,
+  },
+  search: {
+    position: "absolute",
+    right: 10,
+    top: 10,
   },
 });

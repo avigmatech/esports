@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../../store";
 
 import * as fromModels from "../models";
 import { getPlayerDetails, loadPlayerDetails } from "../store";
+import TextInput from "../../../components";
 
 type Props = {
   navigation: fromModels.PlayersStackNavigatorProp;

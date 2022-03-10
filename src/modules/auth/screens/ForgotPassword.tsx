@@ -39,13 +39,18 @@ const ForgotPassword = ({ navigation }: Props) => {
   const [loading, setLoading] = useState(false);
 
   const handleForgotPassword = async (data: { email: string }) => {
+    console.log(data.email, "data.email");
+
     Keyboard.dismiss();
     try {
       setLoading(true);
 
-      const formData = new FormData();
-      formData.append("email", data.email);
-      const response = await forgotPassword(formData);
+      // const formData = new FormData();
+      // formData.append("email", data.email);
+
+      const response = await forgotPassword(data);
+      console.log(response, "response");
+
       dispatch(setSnackbarMessage("Please check your email address."));
       setLoading(false);
       navigation.goBack();

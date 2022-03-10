@@ -99,6 +99,8 @@ const CreateTeam = () => {
   };
 
   const renderItem = (item: fromModels.Region) => {
+    console.log(item, "itemmmmmm");
+
     return (
       <Card style={{ marginBottom: 10 }}>
         <Card.Title

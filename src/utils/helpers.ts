@@ -7,7 +7,7 @@ import {
 } from "react-native-snap-carousel";
 
 // Project imports
-import { API_BASE_URL, BASE_URL } from "../config";
+import { API_BASE_URL, BASE_URL, SUBSTITUTE_URL } from "../config";
 
 /**
  * Generate stylesheets for margin or padding
@@ -336,6 +336,21 @@ export const mergeTheme = (theme: any = {}, extra: any = {}) => {
 export const api = () => {
   const instance = axios.create({
     baseURL: API_BASE_URL,
+    withCredentials: false,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  });
+
+  instance.interceptors.response.use(response => response.data);
+
+  return instance;
+};
+
+export const apisubstitute = () => {
+  const instance = axios.create({
+    baseURL: SUBSTITUTE_URL,
     withCredentials: false,
     headers: {
       Accept: "application/json",

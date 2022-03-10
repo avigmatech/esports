@@ -39,54 +39,30 @@ const SelectLeague = ({ navigation, route }: Props) => {
 
   useFocusEffect(
     useCallback(() => {
-      let mounted = true;
-      
-      if(mounted){
-          if (selectedLeague) {
-             console.log("selectedLeaguetitle", selectedLeague.title);
-            if (params && params.afterLogin) {
-            navigation.goBack();
-            }
-          }
-          dispatch(setActiveLeague(selectedLeague)); 
-        }
-      return () => {
-        mounted = false;
-      };
-    }, [selectedLeague]),
+      return () => {};
+    }, []),
   );
 
-  // const handleSelectLeague = (item) => { 
-  //   // setSelectedLeague(item);
-  //   console.log(item,"itemmmm");
-    
-  //   console.log("selectedLeague", selectedLeague);
-  
-
-  //   if (selectedLeague) {
-      
-  //     console.log("selectedLeaguetitle", selectedLeague.title);
-  //     // toaster.show({
-  //     //   message: `${selectedLeague.title} selected.`,
-  //     //   type: "info",
-  //     // });
-  //     // dispatch(setActiveLeague(selectedLeague));
-  //     if (params && params.afterLogin) {
-  //       navigation.goBack();
-  //     }
-  //   } 
-  //   // else {
-  //   //   Alert.alert("Warning", "Please select a league");
-  //   // }
-
-  // };
+  const handleSelectLeague = () => {
+    if (selectedLeague) {
+      toaster.show({
+        message: `${selectedLeague.title} selected.`,
+        type: "info",
+      });
+      dispatch(setActiveLeague(selectedLeague));
+      if (params && params.afterLogin) {
+        navigation.goBack();
+      }
+    } else {
+      Alert.alert("Warning", "Please select a league");
+    }
+  };
 
   const renderItem = ({ item }: { item: League }) => {
     return (
       <Block flex>
         <TouchableRipple
-          onPress={() =>  setSelectedLeague(item)}
-          // onPress={() =>success(item) }
+          onPress={() => setSelectedLeague(item)}
           style={[
             styles.item,
             selectedLeague && selectedLeague.key === item.key
@@ -147,14 +123,14 @@ const SelectLeague = ({ navigation, route }: Props) => {
           </Block>
         )}
 
-        {/* <Block>
+        <Block>
           <Button
             mode="contained"
             onPress={handleSelectLeague}
             uppercase={false}>
             Select League
           </Button>
-        </Block> */}
+        </Block>
       </Block>
     </SafeAreaView>
   );

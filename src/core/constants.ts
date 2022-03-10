@@ -29,7 +29,7 @@ export const FAQContents: FAQ[] = [
     id: 5,
     title: "How do I challenge a team?",
     content:
-      "On the Standings page for the game, when the season is active, you'll see this icon  next to the teams that you can challenge. Challenges are restricted to teams around your skill level. You can also quickly filter on them by clicking \"Find A Challenge\" at the top of the Standings page. Pick a team you'd like to challenge, and reach out to them on Discord to discuss scheduling. If they agree to the challenge, and you both agree on a time to play, you can send them a challenge request by clicking on icon which will bring you to a calendar page to submit your challenge.",
+      "On the Standings page for the game, when the season is active, you'll see this icon next to the teams that you can challenge. Challenges are restricted to teams around your skill level. You can also quickly filter on them by clicking \"Find A Challenge\" at the top of the Standings page. Pick a team you'd like to challenge, and reach out to them on Discord to discuss scheduling. If they agree to the challenge, and you both agree on a time to play, you can send them a challenge request by clicking on icon which will bring you to a calendar page to submit your challenge.",
   },
   {
     id: 6,
@@ -61,7 +61,7 @@ export const SponsorContents: Sponsor[] = [
   {
     id: "PROTUBEVR",
     image:
-      "https://vrmasterleague.com/images/logos/partners/protube-vr-black.svg",
+      "https://vrmasterleague.com/images/logos/partners/protube-vr-dark.png",
     content:
       "The best VR rifle mount and VR accessories. No more shaky aim. Fully adaptable, ProTubeVR's Rifles secure your kills! Increase your immersion feeling in VR gaming with ProtubeVR accessories. Feel the game.",
     url: "https://www.protubevr.com/",
